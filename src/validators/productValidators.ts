@@ -1,6 +1,6 @@
-const { param, checkSchema } = require("express-validator");
+import { param, checkSchema, Schema } from "express-validator";
 
-const productValidationSchema = {
+const productValidationSchema: Schema = {
   name: {
     in: "body",
     errorMessage: "Product name is required",
@@ -55,4 +55,4 @@ class ProductValidator {
   }
 }
 
-module.exports = new ProductValidator();
+export default new ProductValidator();

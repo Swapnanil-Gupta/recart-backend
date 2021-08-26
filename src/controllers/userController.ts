@@ -1,13 +1,14 @@
-const User = require("../models/User");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const ApiError = require("../error/ApiError");
-const RefreshToken = require("../models/RefreshToken");
-const roles = require("../configs/roles");
-const { validationResult } = require("express-validator");
+import { Request, Response, NextFunction } from "express";
+import User from "../models/User";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import ApiError from "../error/ApiError";
+import RefreshToken from "../models/RefreshToken";
+import roles from "../configs/roles";
+import { validationResult } from "express-validator";
 
 class UserController {
-  async signup(req, res, next) {
+  async signup(req: Request, res: Response, next: NextFunction) {
     const errMsg = "Unable to create new user";
 
     const validationErrors = validationResult(req);
@@ -49,7 +50,7 @@ class UserController {
       );
     }
 
-    const newUser = new User({
+    const newUser: any = new User({
       name,
       email,
       hashedPassword,
@@ -89,7 +90,7 @@ class UserController {
     }
   }
 
-  async signin(req, res, next) {
+  async signin(req: Request, res: Response, next: NextFunction) {
     const errMsg = "Unable to sign in user";
 
     const validationErrors = validationResult(req);
@@ -112,7 +113,7 @@ class UserController {
       }
     } catch (err) {
       return next(
-        ApiError.internal(errMsg, "Unable to check email. Sign in terminated")
+        ApiError.internal(errMsg, ["Unable to check email. Sign in terminated"])
       );
     }
 
@@ -151,7 +152,7 @@ class UserController {
     }
   }
 
-  async refreshToken(req, res, next) {
+  async refreshToken(req: Request, res: Response, next: NextFunction) {
     const errMsg = "Unable to refresh token";
 
     const validationErrors = validationResult(req);
@@ -166,7 +167,7 @@ class UserController {
 
     const { refreshToken } = req.body;
 
-    let payload = null;
+    let payload: any = null;
     try {
       payload = jwt.verify(refreshToken, process.env.REFRESH_SECRET_KEY);
     } catch (err) {
@@ -216,4 +217,4 @@ class UserController {
   }
 }
 
-module.exports = new UserController();
+export default new UserController();

@@ -1,10 +1,11 @@
-const ApiError = require("../error/ApiError");
-const Product = require("../models/Product");
-const { validationResult } = require("express-validator");
-const cloudinary = require("../configs/cloudinary");
+import { Request, Response, NextFunction } from "express";
+import ApiError from "../error/ApiError";
+import Product from "../models/Product";
+import cloudinary from "../configs/cloudinary";
+import { validationResult } from "express-validator";
 
 class ProductController {
-  async createProduct(req, res, next) {
+  async createProduct(req: Request, res: Response, next: NextFunction) {
     const errMsg = "Unable to create new product";
     const validationErrors = validationResult(req);
 
@@ -54,7 +55,7 @@ class ProductController {
     }
   }
 
-  async getProductById(req, res, next) {
+  async getProductById(req: Request, res: Response, next: NextFunction) {
     const errMsg = "Unable to fetch product by id";
     const validationErrors = validationResult(req);
 
@@ -81,7 +82,7 @@ class ProductController {
     }
   }
 
-  async getAllProducts(req, res, next) {
+  async getAllProducts(req: Request, res: Response, next: NextFunction) {
     const page = +req.query.page || 1;
     const perPage = +req.query.perPage || 20;
 
@@ -101,4 +102,4 @@ class ProductController {
   }
 }
 
-module.exports = new ProductController();
+export default new ProductController();

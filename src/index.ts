@@ -1,11 +1,13 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
 import express from "express";
-import morgan from "morgan";
+import loggerMiddleware from "./middlewares/loggerMiddleware";
 import connectDB from "./configs/db";
 import errorHandler from "./middlewares/errorHandler";
 import productRoutes from "./routes/productRoutes";
 import userRoutes from "./routes/userRoutes";
+import logger from "./configs/logger";
 
 const port = process.env.PORT || 5000;
 const app = express();
@@ -13,7 +15,7 @@ const app = express();
 // ******* app config ********
 // middlewares
 app.use(express.json());
-app.use(morgan("dev"));
+app.use(loggerMiddleware);
 
 // routes
 app.use("/api/user", userRoutes);
@@ -26,5 +28,7 @@ app.use(errorHandler);
 connectDB();
 
 app.listen(port, () => {
-  console.log(`Express running on port ${port}`);
+  logger.info(
+    `------------------Listening for requests on port ${port}--------------------`
+  );
 });

@@ -4,11 +4,15 @@ import userValidator from "../validators/userValidators";
 
 const router = Router();
 
-router.post("/", userValidator.signupValidator(), userController.signup);
+router.post(
+  "/",
+  userValidator.createUserValidator(),
+  userController.createUser
+);
 router.post(
   "/authenticate",
   userValidator.authenticateValidator(),
-  userController.signin
+  userController.authenticate
 );
 router.post(
   "/refreshToken",

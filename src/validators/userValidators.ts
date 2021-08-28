@@ -67,7 +67,7 @@ const userAuthenticateValidationSchema: Schema = {
 };
 
 class UserValidator {
-  signupValidator() {
+  createUserValidator() {
     return checkSchema(userValidationSchema);
   }
 

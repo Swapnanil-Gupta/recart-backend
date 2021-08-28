@@ -1,5 +1,6 @@
 import ApiError from "../error/ApiError";
 import { Request, Response, NextFunction } from "express";
+import logger from "../configs/logger";
 
 function errorHandler(
   err: any,
@@ -7,6 +8,8 @@ function errorHandler(
   res: Response,
   next: NextFunction
 ) {
+  logger.error("Error response => %O", err);
+
   let name = "GenericError";
   let statusCode = 500;
   let message = "Some error occured";

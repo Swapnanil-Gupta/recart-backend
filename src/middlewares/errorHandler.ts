@@ -1,11 +1,20 @@
-const ApiError = require("../error/ApiError");
+import ApiError from "../error/ApiError";
+import { Request, Response, NextFunction } from "express";
+import logger from "../configs/logger";
 
-function errorHandler(err, req, res, next) {
+function errorHandler(
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  logger.error("Error response => %O", err);
+
   let name = "GenericError";
   let statusCode = 500;
   let message = "Some error occured";
   let error = "Internal Server Error";
-  let details = [];
+  let details: string[] = [];
 
   if (err instanceof ApiError) {
     name = err.name;
@@ -18,4 +27,4 @@ function errorHandler(err, req, res, next) {
   res.status(statusCode).json({ name, statusCode, message, error, details });
 }
 
-module.exports = errorHandler;
+export default errorHandler;

@@ -1,5 +1,5 @@
-require("dotenv").config();
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
+import logger from "./logger";
 
 async function connectDB() {
   try {
@@ -7,12 +7,12 @@ async function connectDB() {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.info("Connected to MongoDB");
+    logger.info("Connected to MongoDB");
   } catch (err) {
-    console.error("Unable to connect to MongoDB");
-    console.error(err);
+    logger.error("Unable to connect to MongoDB");
+    logger.error(err);
     process.exit(1);
   }
 }
 
-module.exports = connectDB;
+export default connectDB;

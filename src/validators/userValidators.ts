@@ -1,6 +1,6 @@
-const { checkSchema, body } = require("express-validator");
+import { body, checkSchema, Schema } from "express-validator";
 
-const userValidationSchema = {
+const userValidationSchema: Schema = {
   email: {
     in: "body",
     trim: true,
@@ -37,7 +37,7 @@ const userValidationSchema = {
   },
 };
 
-const userAuthenticateValidationSchema = {
+const userAuthenticateValidationSchema: Schema = {
   email: {
     in: "body",
     trim: true,
@@ -67,7 +67,7 @@ const userAuthenticateValidationSchema = {
 };
 
 class UserValidator {
-  signupValidator() {
+  createUserValidator() {
     return checkSchema(userValidationSchema);
   }
 
@@ -84,4 +84,4 @@ class UserValidator {
   }
 }
 
-module.exports = new UserValidator();
+export default new UserValidator();

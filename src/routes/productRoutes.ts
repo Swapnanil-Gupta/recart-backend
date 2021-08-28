@@ -1,9 +1,9 @@
-const express = require("express");
-const upload = require("../configs/multer");
-const productController = require("../controllers/productController");
-const productValidator = require("../validators/productValidators");
+import { Router } from "express";
+import upload from "../configs/multer";
+import productController from "../controllers/productController";
+import productValidator from "../validators/productValidators";
 
-const router = express.Router();
+const router = Router();
 
 router.get("/", productController.getAllProducts);
 router.get(
@@ -18,4 +18,4 @@ router.post(
   productController.createProduct
 );
 
-module.exports = router;
+export default router;

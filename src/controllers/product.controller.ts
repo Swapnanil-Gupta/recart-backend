@@ -1,51 +1,17 @@
 import { Request, Response, NextFunction } from "express";
 import ApiError from "../error/ApiError";
 import Product from "../models/Product";
-import cloudinary from "../configs/cloudinary";
-import { validationResult } from "express-validator";
+
 import logger from "../configs/logger";
+import errorMessages from "../error/errorMessages";
 
 class ProductController {
   async createProduct(req: Request, res: Response, next: NextFunction) {
-    const errMsg = "Unable to create new product";
-
-    logger.info("checking for validation errors");
-    const validationErrors = validationResult(req);
-
-    if (!validationErrors.isEmpty()) {
-      logger.error("validation error occured");
-      return next(
-        ApiError.badRequest(
-          errMsg,
-          validationErrors.array({ onlyFirstError: true })
-        )
-      );
-    }
-    logger.info("no validation errors. Proceeding..");
-
-    if (!req.file) {
-      logger.error("req.file is not present");
-      return next(ApiError.badRequest(errMsg, ["Product image is required"]));
-    }
-
-    let imageUrl = null;
-    try {
-      logger.info("starting cloudinary image upload");
-      const cloudinaryResp = await cloudinary.uploader.upload(req.file.path, {
-        upload_preset: "recart",
-      });
-      imageUrl = cloudinaryResp.secure_url;
-      logger.info("product image uploaded successfully to cloudinary");
-    } catch (err) {
-      logger.error("unable to upload image to cloudinary => %O", err);
-      return next(
-        ApiError.internal(errMsg, [
-          "Unable to upload image to cloudinary. Create product terminated",
-        ])
-      );
-    }
+    const errMsg = errorMessages.product.createProduct;
 
     const { name, description, price, countInStock } = req.body;
+    const imageUrl = (req as Request & { uploadedImageUrl: string })
+      .uploadedImageUrl;
 
     try {
       logger.info("saving new product");
@@ -66,21 +32,7 @@ class ProductController {
   }
 
   async getProductById(req: Request, res: Response, next: NextFunction) {
-    const errMsg = "Unable to fetch product by id";
-
-    logger.info("checking for validation errors");
-    const validationErrors = validationResult(req);
-
-    if (!validationErrors.isEmpty()) {
-      logger.error("validation error occured");
-      return next(
-        ApiError.badRequest(
-          errMsg,
-          validationErrors.array({ onlyFirstError: true })
-        )
-      );
-    }
-    logger.info("no validation errors. Proceeding..");
+    const errMsg = errorMessages.product.getProductById;
 
     const productId = req.params.id;
     try {
@@ -107,14 +59,16 @@ class ProductController {
     try {
       logger.info("fetching all products and product count");
       const total = await Product.countDocuments();
-      const allProducts = await Product.find()
+      const products = await Product.find()
         .skip((page - 1) * perPage)
         .limit(perPage);
-
       logger.info("fetched successfully");
+
       res.send({
         total,
-        results: allProducts,
+        page,
+        perPage,
+        results: products,
       });
     } catch (err) {
       logger.error("unable to get all products => %O", err);

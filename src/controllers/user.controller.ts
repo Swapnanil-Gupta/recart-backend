@@ -5,25 +5,67 @@ import jwt from "jsonwebtoken";
 import ApiError from "../error/ApiError";
 import RefreshToken from "../models/RefreshToken";
 import roles from "../configs/roles";
-import { validationResult } from "express-validator";
 import logger from "../configs/logger";
+import errorMessages from "../error/errorMessages";
 
 class UserController {
-  async createUser(req: Request, res: Response, next: NextFunction) {
-    const errMsg = "Unable to create new user";
+  async createAdmin(req: Request, res: Response, next: NextFunction) {
+    const errMsg = errorMessages.admin.createAdmin;
 
-    logger.info("checking for validation errors");
-    const validationErrors = validationResult(req);
-    if (!validationErrors.isEmpty()) {
-      logger.error("validation error occured");
+    const { name, email, password } = req.body;
+
+    try {
+      logger.info("finding existing user with email");
+      const existingUser = await User.findOne({
+        email,
+      });
+      if (existingUser) {
+        logger.error("user already exists");
+        return next(ApiError.badRequest(errMsg, ["Email already exists"]));
+      }
+      logger.info("existing user not found");
+    } catch (err) {
+      logger.error("unable to check existing user => %O", err);
       return next(
-        ApiError.badRequest(
-          errMsg,
-          validationErrors.array({ onlyFirstError: true })
-        )
+        ApiError.internal(errMsg, [
+          "Failed to check email, create user terminated",
+        ])
       );
     }
-    logger.info("no validation errors. Proceeding..");
+
+    let hashedPassword = null;
+    try {
+      logger.info("generating salt/hash");
+      const salt = bcrypt.genSaltSync(10);
+      hashedPassword = bcrypt.hashSync(password, salt);
+    } catch (err) {
+      logger.error("unable to generate salt/hash => %O", err);
+      return next(
+        ApiError.internal(errMsg, [
+          "Failed to hash password, create user terminated",
+        ])
+      );
+    }
+
+    logger.info("creating new admin");
+    const newUser: any = new User({
+      name,
+      email,
+      hashedPassword,
+      role: roles.admin,
+    });
+    try {
+      await newUser.save();
+      logger.info("new admin created successfully");
+      res.status(201).send(newUser);
+    } catch (err) {
+      logger.error("unable to create new admin => %O", err);
+      return next(ApiError.internal(errMsg, ["Unable to create user"]));
+    }
+  }
+
+  async createUser(req: Request, res: Response, next: NextFunction) {
+    const errMsg = errorMessages.user.createUser;
 
     const { name, email, password } = req.body;
 
@@ -107,20 +149,7 @@ class UserController {
   }
 
   async authenticate(req: Request, res: Response, next: NextFunction) {
-    const errMsg = "Unable to sign in user";
-
-    logger.info("checking for validation errors");
-    const validationErrors = validationResult(req);
-    if (!validationErrors.isEmpty()) {
-      logger.error("validation error occured");
-      return next(
-        ApiError.badRequest(
-          errMsg,
-          validationErrors.array({ onlyFirstError: true })
-        )
-      );
-    }
-    logger.info("no validation errors. Proceeding..");
+    const errMsg = errorMessages.user.authenticate;
 
     const { email, password } = req.body;
 
@@ -182,20 +211,7 @@ class UserController {
   }
 
   async refreshToken(req: Request, res: Response, next: NextFunction) {
-    const errMsg = "Unable to refresh token";
-
-    logger.info("checking for validation errors");
-    const validationErrors = validationResult(req);
-    if (!validationErrors.isEmpty()) {
-      logger.error("validation error occured");
-      return next(
-        ApiError.badRequest(
-          errMsg,
-          validationErrors.array({ onlyFirstError: true })
-        )
-      );
-    }
-    logger.info("no validation errors. Proceeding..");
+    const errMsg = errorMessages.user.refreshToken;
 
     const { refreshToken } = req.body;
 

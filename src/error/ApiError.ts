@@ -19,6 +19,10 @@ class ApiError {
   static notFound(message: string) {
     return new ApiError(404, message, "Not Found", []);
   }
+
+  static unauthorized(message: string) {
+    return new ApiError(401, message, "Unauthorized", []);
+  }
 }
 
 export default ApiError;

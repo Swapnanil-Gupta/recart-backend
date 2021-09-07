@@ -23,22 +23,22 @@ const logger = createLogger({
   transports: [
     // new transports.File({ filename: "logs/error.log", level: "error" }),
     // new transports.File({ filename: "logs/combined.log" }),
-    new transports.DailyRotateFile({
-      filename: "recart-combined-%DATE%.log",
-      datePattern: "YYYY-MM-DD",
-      maxSize: "20m",
-      maxFiles: "30d",
-      dirname: "logs",
-      level: process.env.LOGGING_LEVEL,
-    }),
-    new transports.DailyRotateFile({
-      filename: "recart-error-%DATE%.log",
-      datePattern: "YYYY-MM-DD",
-      maxSize: "20m",
-      maxFiles: "30d",
-      dirname: "logs",
-      level: "error",
-    }),
+    // new transports.DailyRotateFile({
+    //   filename: "recart-combined-%DATE%.log",
+    //   datePattern: "YYYY-MM-DD",
+    //   maxSize: "20m",
+    //   maxFiles: "30d",
+    //   dirname: "logs",
+    //   level: process.env.LOGGING_LEVEL,
+    // }),
+    // new transports.DailyRotateFile({
+    //   filename: "recart-error-%DATE%.log",
+    //   datePattern: "YYYY-MM-DD",
+    //   maxSize: "20m",
+    //   maxFiles: "30d",
+    //   dirname: "logs",
+    //   level: "error",
+    // }),
   ],
   silent: false,
 });

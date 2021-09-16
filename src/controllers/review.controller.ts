@@ -14,10 +14,13 @@ class ReviewController {
     const perPage = +req.query.perPage || 10;
     const productId = req.params.productId;
 
+    // TODO: Add query param for sorting
+
     logger.info(`fetching all reviews for product id ${productId}`);
     try {
       const total = await ProductReview.countDocuments({ productId });
       const reviews = await ProductReview.find({ productId })
+        .sort({ createdAt: -1 })
         .skip((page - 1) * perPage)
         .limit(perPage);
       logger.info("fetched successfully");
@@ -46,6 +49,8 @@ class ReviewController {
 
     const productId = req.params.productId;
 
+    // TODO: Remove average rating aggregate because it can be calculated at the frontend
+
     try {
       logger.info(`fetching average rating for product id ${productId}`);
       const averageRating = await ProductReview.aggregate([
@@ -65,8 +70,11 @@ class ReviewController {
       ]);
       logger.info("successfully fetched rating aggregate");
 
+      logger.info("averageRating => %O", averageRating);
+      logger.info("ratingAggregate => %O", ratingAggregate);
+
       res.send({
-        averageRating: averageRating[0].averageRating,
+        averageRating: averageRating[0]?.averageRating || 0,
         ratingAggregate,
       });
     } catch (err) {

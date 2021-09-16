@@ -3,7 +3,7 @@ import ApiError from "../error/ApiError";
 import logger from "../configs/logger";
 import jwt from "jsonwebtoken";
 
-function auth(userType: string) {
+function auth(userTypes: string[]) {
   return function (req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
@@ -29,7 +29,11 @@ function auth(userType: string) {
       return next(ApiError.unauthorized("Invalid token"));
     }
 
-    if (payload && payload.role !== userType) {
+    if (!payload) {
+      return next(ApiError.unauthorized("Invalid payload"));
+    }
+
+    if (payload && !userTypes.includes(payload.role)) {
       return next(ApiError.unauthorized("Insufficient privilages"));
     }
 

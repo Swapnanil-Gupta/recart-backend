@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 
+// TODO: Add title to reviews
 const productReviewSchema = new Schema(
   {
     productId: Schema.Types.ObjectId,

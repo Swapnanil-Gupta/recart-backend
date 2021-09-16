@@ -9,6 +9,7 @@ import productRoutes from "./routes/product.routes";
 import userRoutes from "./routes/user.routes";
 import reviewRoutes from "./routes/review.routes";
 import logger from "./configs/logger";
+import cors from "cors";
 
 const port = process.env.PORT || 5000;
 const app = express();
@@ -16,6 +17,11 @@ const app = express();
 // ******* app config ********
 // middlewares
 app.use(express.json());
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 app.use(loggerMiddleware);
 
 // routes

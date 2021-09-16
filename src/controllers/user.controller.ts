@@ -9,6 +9,61 @@ import logger from "../configs/logger";
 import errorMessages from "../error/errorMessages";
 
 class UserController {
+  async validateToken(req: Request, res: Response, next: NextFunction) {
+    logger.info("Checking for authenticated user on request");
+    const authenticatedUser = (req as Request & { user: any }).user;
+    if (authenticatedUser) {
+      logger.info("authenticated user found on request");
+      let { _id, name, email, role } = authenticatedUser;
+      return res.json({ _id, name, email, role });
+    } else {
+      logger.info("authenticated user not found on request");
+      return ApiError.unauthorized(
+        "Authenticated user not present on the request that reached the controller"
+      );
+    }
+  }
+
+  async getUsers(req: Request, res: Response, next: NextFunction) {
+    const page = +req.query.page || 1;
+    const perPage = +req.query.perPage || 20;
+
+    const ids = Array.isArray(req.query.ids) ? req.query.ids : [];
+    let filter = {
+      role: {
+        $ne: roles.admin,
+      },
+    };
+    if (ids.length > 0) {
+      Object.assign(filter, {
+        _id: {
+          $in: ids,
+        },
+      });
+    }
+
+    logger.info("filter => %O", filter);
+
+    try {
+      logger.info("fetching users and user count");
+      const total = await User.countDocuments(filter);
+      const users = await User.find(filter, "-hashedPassword")
+        .skip((page - 1) * perPage)
+        .limit(perPage);
+      logger.info("fetched successfully");
+
+      res.send({
+        total,
+        page,
+        perPage,
+        results: users,
+      });
+    } catch (err) {
+      logger.error("unable to get users => %O", err);
+      next(ApiError.internal("Unable to fetch users", [err.message]));
+    }
+  }
+
   async createAdmin(req: Request, res: Response, next: NextFunction) {
     const errMsg = errorMessages.admin.createAdmin;
 
@@ -125,7 +180,7 @@ class UserController {
     };
     try {
       logger.info("generating token");
-      const token = jwt.sign(tokenPayload, process.env.JWT_SECRET_KEY, {
+      const accessToken = jwt.sign(tokenPayload, process.env.JWT_SECRET_KEY, {
         expiresIn: "1h",
       });
       const refreshToken = jwt.sign(
@@ -137,7 +192,7 @@ class UserController {
       await new RefreshToken({ userId: newUser.id, refreshToken }).save();
       logger.info("refesh token saved successfully");
 
-      res.send({ token, refreshToken });
+      res.send({ ...tokenPayload, accessToken, refreshToken });
     } catch (err) {
       logger.error("Unable to generate/save token => %O", err);
       return next(
@@ -187,7 +242,7 @@ class UserController {
     };
     try {
       logger.info("generating token");
-      const token = jwt.sign(tokenPayload, process.env.JWT_SECRET_KEY, {
+      const accessToken = jwt.sign(tokenPayload, process.env.JWT_SECRET_KEY, {
         expiresIn: "1h",
       });
       const refreshToken = jwt.sign(
@@ -203,7 +258,7 @@ class UserController {
       );
       logger.info("refesh token saved successfully");
 
-      res.send({ token, refreshToken });
+      res.send({ ...tokenPayload, accessToken, refreshToken });
     } catch (err) {
       logger.error("Unable to generate/save token => %O", err);
       return next(ApiError.internal(errMsg, ["Unable to generate token"]));
@@ -245,19 +300,11 @@ class UserController {
       logger.info("refresh token exists");
       logger.info("signing new token");
       try {
-        const newToken = jwt.sign(
-          {
-            _id: payload._id,
-            name: payload.name,
-            email: payload.email,
-            role: payload.role,
-          },
-          process.env.JWT_SECRET_KEY
-        );
+        const newToken = jwt.sign(payload, process.env.JWT_SECRET_KEY);
         logger.info("new token generated successfully");
 
         res.send({
-          token: newToken,
+          accessToken: newToken,
           refreshToken,
         });
       } catch (err) {

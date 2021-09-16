@@ -8,6 +8,8 @@ import roles from "../configs/roles";
 
 const router = Router();
 
+// TODO: Add validator for query params
+router.get("/", userController.getUsers);
 router.post(
   "/",
   userValidator.createUserValidator(),
@@ -16,7 +18,7 @@ router.post(
 );
 router.post(
   "/admin",
-  auth(roles.admin),
+  auth([roles.admin]),
   userValidator.createUserValidator(),
   validationMiddleware(errorMessages.admin.createAdmin),
   userController.createAdmin
@@ -26,6 +28,11 @@ router.post(
   userValidator.authenticateValidator(),
   validationMiddleware(errorMessages.user.authenticate),
   userController.authenticate
+);
+router.get(
+  "/validateToken",
+  auth([roles.user, roles.admin]),
+  userController.validateToken
 );
 router.post(
   "/refreshToken",

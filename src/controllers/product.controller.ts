@@ -56,10 +56,22 @@ class ProductController {
     const page = +req.query.page || 1;
     const perPage = +req.query.perPage || 20;
 
+    const ids = Array.isArray(req.query.ids) ? req.query.ids : [];
+    let filter = {};
+    if (ids.length > 0) {
+      filter = {
+        _id: {
+          $in: ids,
+        },
+      };
+    }
+
+    // TODO: Add query params for search/sort
+
     try {
       logger.info("fetching all products and product count");
-      const total = await Product.countDocuments();
-      const products = await Product.find()
+      const total = await Product.countDocuments(filter);
+      const products = await Product.find(filter)
         .skip((page - 1) * perPage)
         .limit(perPage);
       logger.info("fetched successfully");

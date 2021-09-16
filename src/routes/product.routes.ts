@@ -11,6 +11,7 @@ import cleanTempUpload from "../middlewares/cleanTempUpload.middleware";
 
 const router = Router();
 
+// TODO: Add validator for query params
 router.get("/", productController.getAllProducts);
 router.get(
   "/:id",
@@ -21,7 +22,7 @@ router.get(
 router.post(
   "/",
   upload.single("image"),
-  // auth(roles.admin),
+  auth([roles.admin]),
   productValidator.createProductValidator(),
   validationMiddleware(errorMessages.product.createProduct),
   uploadToCloudinaryMiddleware(errorMessages.product.createProduct),

@@ -1,0 +1,25 @@
+service: recart-backend-express-lambda #Name of your App
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs14.x # Node JS version
+  memorySize: 512
+  timeout: 15
+  stage: production
+  region: ap-south-1 # AWS region
+
+package:
+  exclude:
+    - src/**
+
+functions:
+  api:
+    handler: dist/lambda.handler
+    events:
+      - http:
+          path: /{proxy+}
+          method: any
+      - http:
+          path: /
+          method: any

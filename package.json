@@ -6,13 +6,15 @@
   "scripts": {
     "build": "tsc",
     "prestart": "npm run build",
-    "start": "node dist/index.js",
-    "dev": "nodemon src/index.ts",
-    "seed": "node src/seederScript.js"
+    "start": "node dist/local.js",
+    "dev": "nodemon src/local.ts",
+    "predeploy": "npm run build",
+    "deploy": "serverless deploy"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "aws-serverless-express": "^3.4.0",
     "bcrypt": "^5.0.1",
     "cloudinary": "^1.26.3",
     "cors": "^2.8.5",
@@ -22,11 +24,13 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.13.7",
     "multer": "^1.4.3",
+    "streamifier": "^0.1.1",
+    "typescript": "^4.3.5",
     "winston": "^3.3.3",
-    "winston-daily-rotate-file": "^4.5.5",
-    "typescript": "^4.3.5"
+    "winston-daily-rotate-file": "^4.5.5"
   },
   "devDependencies": {
+    "@types/aws-serverless-express": "^3.3.5",
     "@types/bcrypt": "^5.0.0",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
@@ -34,7 +38,9 @@
     "@types/mongoose": "^5.11.97",
     "@types/multer": "^1.4.7",
     "@types/node": "^16.7.2",
+    "@types/streamifier": "^0.1.0",
     "nodemon": "^2.0.12",
+    "serverless": "^2.59.0",
     "ts-node": "^10.2.1"
   }
 }

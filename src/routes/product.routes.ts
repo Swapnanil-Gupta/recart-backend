@@ -7,7 +7,6 @@ import errorMessages from "../error/errorMessages";
 import auth from "../middlewares/auth.middleware";
 import roles from "../configs/roles";
 import uploadToCloudinaryMiddleware from "../middlewares/cloudinary.middleware";
-import cleanTempUpload from "../middlewares/cleanTempUpload.middleware";
 
 const router = Router();
 
@@ -26,8 +25,7 @@ router.post(
   productValidator.createProductValidator(),
   validationMiddleware(errorMessages.product.createProduct),
   uploadToCloudinaryMiddleware(errorMessages.product.createProduct),
-  productController.createProduct,
-  cleanTempUpload
+  productController.createProduct
 );
 
 export default router;

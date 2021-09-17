@@ -1,7 +1,9 @@
 import multer from "multer";
 
-const upload = multer({
-  dest: "temp-uploads",
-});
+/*
+  AWS Lambda doesnt allow file/folder write options.
+  So keep it in memory by not providing options.
+*/
+const upload = multer();
 
 export default upload;

@@ -7,10 +7,10 @@ import errorMessages from "../error/errorMessages";
 import auth from "../middlewares/auth.middleware";
 import roles from "../configs/roles";
 import uploadToCloudinaryMiddleware from "../middlewares/cloudinary.middleware";
-import cleanTempUpload from "../middlewares/cleanTempUpload.middleware";
 
 const router = Router();
 
+// TODO: Add validator for query params
 router.get("/", productController.getAllProducts);
 router.get(
   "/:id",
@@ -21,12 +21,11 @@ router.get(
 router.post(
   "/",
   upload.single("image"),
-  // auth(roles.admin),
+  auth([roles.admin]),
   productValidator.createProductValidator(),
   validationMiddleware(errorMessages.product.createProduct),
   uploadToCloudinaryMiddleware(errorMessages.product.createProduct),
-  productController.createProduct,
-  cleanTempUpload
+  productController.createProduct
 );
 
 export default router;

@@ -22,7 +22,7 @@ router.get(
 );
 router.post(
   "/:productId",
-  auth(roles.user),
+  auth([roles.user]),
   reviewValidator.getCreateReviewValidator(),
   validationMiddleware(errorMessages.review.createReviewForProductId),
   reviewController.createReviewForProductId

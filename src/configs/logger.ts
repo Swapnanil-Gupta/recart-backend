@@ -21,6 +21,13 @@ const logger = createLogger({
     simpleFormat
   ),
   transports: [
+    new transports.Console({
+      format: colorize(),
+    }),
+    /*
+      AWS doenst allow file/folder write.
+      So only using console logging.
+    */
     // new transports.File({ filename: "logs/error.log", level: "error" }),
     // new transports.File({ filename: "logs/combined.log" }),
     // new transports.DailyRotateFile({
@@ -40,15 +47,6 @@ const logger = createLogger({
     //   level: "error",
     // }),
   ],
-  silent: false,
 });
-
-if (process.env.NODE_ENV.toLowerCase() === "dev") {
-  logger.add(
-    new transports.Console({
-      format: colorize(),
-    })
-  );
-}
 
 export default logger;

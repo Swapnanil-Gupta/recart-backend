@@ -20,7 +20,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "*",
+    origin: process.env.CORS_ALLOW_ORIGIN.split(","),
   })
 );
 app.use(loggerMiddleware);
